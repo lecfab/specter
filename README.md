@@ -1,3 +1,5 @@
+<details>
+  <summary>Intro</summary>
 ![plot](https://i.ibb.co/3TC1WmG/specter-logo-cropped.png)
 
 # SPECTER: Document-level Representation Learning using Citation-informed Transformers
@@ -18,10 +20,12 @@ Specter is now accessible through HuggingFace's transformers library.
 *Thanks to [@zhipenghoustat](https://github.com/zhipenghoustat) for providing the Huggingface training scripts and the checkpoint.*
 
 See below:
+</details>
 
 # How to use the pretrained model
-
-## 1- Through Huggingface Transformers Library
+<details>
+  <summary>Alternative: through Huggingface Transformers Library</summary>
+  
 
 Requirement: `pip install --upgrade transformers==4.2`
 
@@ -62,23 +66,27 @@ To reproduce our exact numbers use our original implementation see [**reproducin
 | mag-f1 	| mesh-f1 	| co-view-map 	| co-view-ndcg 	| co-read-map 	| co-read-ndcg 	| cite-map 	| cite-ndcg 	| cocite-map 	| cocite-ndcg 	| recomm-ndcg 	| recomm-P@1 	| Avg  	|
 |--------	|---------	|-------------	|--------------	|-------------	|--------------	|----------	|-----------	|------------	|-------------	|-------------	|------------	|------	|
 | 79.4   	| 87.7    	| 83.4        	| 91.4         	| 85.1        	| 92.7         	| 92.0     	| 96.6      	| 88.0       	| 94.7        	| 54.6        	| 20.9       	| 80.5 	|
-
-## 2- Through this repo
-
-**Errata for paper**: In the paper we mentioned that we take the representation corresponding to the `[CLS]` token as the aggregate representation of the sequence. However, in the AllenNLP v0.9 implementation of BERT embedder, each token representation is a [scalar mix](https://github.com/allenai/allennlp/blob/542ce5d9137840e8197ef5781cd12f02f1c86f79/allennlp/modules/scalar_mix.py#L10) of all layer representations. To get aggregate representation of the input in a single vector, average pooling is used. Therefore, the original SPECTER model uses scalar mixing of layers and average pooling to embed a given document as opposed to taking the final layer represenation of the `[CLS]` token.
+</details>
+          
+<details>
+          <summary>Errata for paper</summary>
+         In the paper we mentioned that we take the representation corresponding to the `[CLS]` token as the aggregate representation of the sequence. However, in the AllenNLP v0.9 implementation of BERT embedder, each token representation is a [scalar mix](https://github.com/allenai/allennlp/blob/542ce5d9137840e8197ef5781cd12f02f1c86f79/allennlp/modules/scalar_mix.py#L10) of all layer representations. To get aggregate representation of the input in a single vector, average pooling is used. Therefore, the original SPECTER model uses scalar mixing of layers and average pooling to embed a given document as opposed to taking the final layer represenation of the `[CLS]` token.
 The Huggingface model above uses final layer represnation of `[CLS]`. In paractice this doesn't impact the results and both models perform comparably.
 
-1 - Clone the repo and download the pretrained model and supporting files:
+</details>
 
-### Download
+### Clone the repo and pretrained model
+
+<details>
+          <summary>Download</summary>
 
 Download the tar file at: [**download**](https://ai2-s2-research-public.s3-us-west-2.amazonaws.com/specter/archive.tar.gz) [833 MiB]  
 The compressed archive includes a `model.tar.gz` file which is the pretrained model as well as supporting files that are inside a `data/` directory. 
 
-Here are the commands to run:
+</details>
 
 ```python
-git clone git@github.com:allenai/specter.git
+git clone https://github.com/lecfab/specter.git
 
 cd specter
 
@@ -88,7 +96,7 @@ tar -xzvf archive.tar.gz
 ```
 
 
-2 - Install the environment:
+### Install the environment
 
 ```python
 conda create --name specter python=3.7 setuptools  
@@ -101,18 +109,17 @@ conda install pytorch cudatoolkit=10.1 -c pytorch
 pip install -r requirements.txt  
 
 python setup.py install
+
+# for TypeError: ArrayField.empty_field: None is not a <class 'allennlp.data.fields.field.Field'> 
+pip install --force-reinstall overrides==3.1.0
 ```
+(https://github.com/allenai/specter/issues/27)
 
-
-3 - Embed papers or documents using SPECTER
-
-
-
+### Embed papers or documents
 Specter requires two main files as input to embed the document. A text file with ids of the documents you want to embed and a json metadata file consisting of the title and abstract information. Sample files are provided in the `data/` directory to get you started. Input data format is according to:
 
 ```python
 metadata.json format:
-
 {
     'doc_id': {'title': 'representation learning of scientific documents',
                'abstract': 'we propose a new model for representing abstracts'},
@@ -136,20 +143,9 @@ The model will run inference on the provided input and writes the output to `--o
 This is a jsonlines file where each line is a key, value pair consisting the id of the embedded document and its specter representation.
 
 
-# Public API
+# Training your own model
 
-A collection of public APIs for embedding scientific papers using Specter is available at: [**allenai/paper-embedding-public-apis**](https://github.com/allenai/paper-embedding-public-apis) 
-
-
-# How to reproduce our results
-
-In order to reproduce our results please refer to the [SciDocs](https://github.com/allenai/scidocs) repo where we provide the embeddings for the evaluation tasks and instructions on how to run the benchmark to get the results.
-
-# Advanced: Training your own model
-
-First follow steps 1 and 2 from the [Pretrained models](#How-to-use-the-pretrained-model) section to download the supporting files and install the environment.
-
-Next you need to create pickled training instances using the `specter/data_utils/create_training_files.py` script and then use the resulting files as input to the `scripts/run-exp-simple.sh` script.  
+### Organise your data
 
 You will need the following files:
 * `data.json` containing the document ids and their relationship.  
@@ -158,19 +154,15 @@ You will need the following files:
 
 The `data.json` file should have the following structure (a nested dict):  
 ```python
-{"docid1" : {  "docid11": {"count": 1}, 
-               "docid12": {"count": 5},
-               "docid13": {"count": 1}, ....
-            }
-"docid2":   {  "docid21": {"count": 1}, ....
-....}
+{"docid1" : {  "docid11": {"count": 1}, "docid12": {"count": 5}, "docid13": {"count": 1}, .... },
+"docid2":   {  "docid21": {"count": 1}, ....} ....}
 ```
 
 Where `docids` are ids of documents in your data and `count` is a measure of importance of the relationship between two documents. In our dataset we used citations as indicator of relationship where `count=5` means direct citation while `count=1` refers to a citation of a citation.  
   
 The `create_training_files.py` script processes this structure with a triplet sampler that selects both easy and hard negatives (as described in the paper) according the `count` value in the above structure. For example papers with `count=5` are considered positive candidates, papers with `count=1` considered hard negatives and other papers that are not cited are easy negatives. You can control the number of hard negatives by setting `--ratio_hard_negatives` argument in the script.  
 
-- Create preprocessed training files:  
+### Create pickled training instances
 ```python
 python specter/data_utils/create_training_files.py \
 --data-dir data/training \
@@ -178,9 +170,9 @@ python specter/data_utils/create_training_files.py \
 --outdir data/preprocessed/
 ```
 
-After preprocessing the data you will have three pickled files containing training instannces as well as a `metrics.json` showing number of examples in each set. Use the following script to start training the model:
+After preprocessing the data you will have three pickled files containing training instannces as well as a `metrics.json` showing number of examples in each set.
 
-- Run the training script
+### Run the training model
 ```python
 ./scripts/run-exp-simple.sh -c experiment_configs/simple.jsonnet \
 -s model-output/ --num-epochs 2 --batch-size 4 \
@@ -193,26 +185,14 @@ Note that you need to set the correct `--num-train-instances` for your dataset. 
 You can monitor the training progress using `tensorboard`:  
 `tensorboard --logdir model-output/  --bind_all`
 
-### 
-
-# SciDocs benchmark
-
-SciDocs evaluation framework consists of a suite of evaluation tasks designed for document-level tasks.
-
-Link to SciDocs: 
-
-*   [https://github.com/allenai/scidocs](https://github.com/allenai/scidocs)
+---
 
 
-# Citation
+* Public API: [**allenai/paper-embedding-public-apis**](https://github.com/allenai/paper-embedding-public-apis) 
 
-Please cite the [SPECTER paper](https://arxiv.org/pdf/2004.07180.pdf) as:  
+* Reproduce our results: [SciDocs](https://github.com/allenai/scidocs) provides the embeddings for the evaluation tasks and instructions on how to run the benchmark to get the results.
 
-```bibtex
-@inproceedings{specter2020cohan,
-  title={{SPECTER: Document-level Representation Learning using Citation-informed Transformers}},
-  author={Arman Cohan and Sergey Feldman and Iz Beltagy and Doug Downey and Daniel S. Weld},
-  booktitle={ACL},
-  year={2020}
-}
-```
+* SciDocs benchmark: [https://github.com/allenai/scidocs](https://github.com/allenai/scidocs) consists of a suite of evaluation tasks designed for document-level tasks. 
+
+
+* Citation: [SPECTER paper](https://arxiv.org/pdf/2004.07180.pdf)
