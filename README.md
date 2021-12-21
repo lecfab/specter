@@ -160,9 +160,10 @@ The `data.json` file should have the following structure (a nested dict):
 
 Where `docids` are ids of documents in your data and `count` is a measure of importance of the relationship between two documents. In our dataset we used citations as indicator of relationship where `count=5` means direct citation while `count=1` refers to a citation of a citation.  
   
-The `create_training_files.py` script processes this structure with a triplet sampler that selects both easy and hard negatives (as described in the paper) according the `count` value in the above structure. For example papers with `count=5` are considered positive candidates, papers with `count=1` considered hard negatives and other papers that are not cited are easy negatives. You can control the number of hard negatives by setting `--ratio_hard_negatives` argument in the script.  
 
 ### Create pickled training instances
+The `create_training_files.py` script processes this structure with a triplet sampler that selects both easy and hard negatives (as described in the paper) according the `count` value in the above structure. For example papers with `count=5` are considered positive candidates, papers with `count=1` considered hard negatives and other papers that are not cited are easy negatives. You can control the number of hard negatives by setting `--ratio_hard_negatives` argument in the script.  
+
 ```python
 python specter/data_utils/create_training_files.py \
 --data-dir data/training \
@@ -180,10 +181,12 @@ After preprocessing the data you will have three pickled files containing traini
 --num-train-instances 55 --cuda-device -1
 ```
 
-In this example: The model's checkpoint and logs will be stored in `model-output/ `.  
 Note that you need to set the correct `--num-train-instances` for your dataset. This number is stored in `metrics.json` file output from the preprocessing step.
-You can monitor the training progress using `tensorboard`:  
-`tensorboard --logdir model-output/  --bind_all`
+
+You can stop the process at any time with keyboard interrupt (`ctrl+C`) and resume the training later with `--recover`.
+
+In this example, the model's checkpoint and logs will be stored in `model-output/ `.  
+You can monitor the training progress using `tensorboard`: `tensorboard --logdir model-output/  --bind_all`
 
 ---
 
