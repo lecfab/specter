@@ -113,7 +113,8 @@ python setup.py install
 # for TypeError: ArrayField.empty_field: None is not a <class 'allennlp.data.fields.field.Field'> 
 pip install --force-reinstall overrides==3.1.0
 ```
-(https://github.com/allenai/specter/issues/27)
+(https://github.com/allenai/specter/issues/27#issuecomment-866667471)
+
 
 ### Embed papers or documents
 Specter requires two main files as input to embed the document. A text file with ids of the documents you want to embed and a json metadata file consisting of the title and abstract information. Sample files are provided in the `data/` directory to get you started. Input data format is according to:
@@ -149,7 +150,7 @@ This is a jsonlines file where each line is a key, value pair consisting the id 
 
 You will need the following files:
 * `data.json` containing the document ids and their relationship.  
-* `metadata.json` containing mapping of document ids to textual fiels (e.g., `title`, `abstract`)
+* `metadata.json` containing mapping of document ids to textual fiels (at least `paper_id`, `title`, `abstract`)
 * `train.txt`,`val.txt`, `test.txt` containing document ids corresponding to train/val/test sets (one doc id per line).
 
 The `data.json` file should have the following structure (a nested dict):  
@@ -162,13 +163,14 @@ Where `docids` are ids of documents in your data and `count` is a measure of imp
   
 
 ### Create pickled training instances
-The `create_training_files.py` script processes this structure with a triplet sampler that selects both easy and hard negatives (as described in the paper) according the `count` value in the above structure. For example papers with `count=5` are considered positive candidates, papers with `count=1` considered hard negatives and other papers that are not cited are easy negatives. You can control the number of hard negatives by setting `--ratio_hard_negatives` argument in the script.  
+The `create_training_files.py` script processes this structure with a triplet sampler that selects both easy and hard negatives (as described in the paper) according the `count` value in the above structure. For example papers with `count=5` are considered positive candidates, papers with `count=1` considered hard negatives and other papers that are not cited are easy negatives. You can control the number of hard negatives by setting `--ratio_hard_negatives` argument in the script. To run `P` parallel jobs, add `--njobs_raw P` (default is 12).
 
 ```python
 python specter/data_utils/create_training_files.py \
 --data-dir data/training \
 --metadata data/training/metadata.json \
---outdir data/preprocessed/
+--outdir data/preprocessed/ \
+--njobs_raw 96
 ```
 
 After preprocessing the data you will have three pickled files containing training instannces as well as a `metrics.json` showing number of examples in each set.
